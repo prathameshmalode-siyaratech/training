@@ -1,40 +1,42 @@
 # Description: Install Frappe and ERPNext on Ubuntu 25.10
 # Part 2: Run as user 'frappe'
 
-# 1. Load NVM (Ensure environment variables are loaded)
+# --- 1. Load NVM (Essential fix so 'npm' command works) ---
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-# 2. Install Yarn
+# --- 2. Install Yarn ---
 npm install -g yarn
 
-# 3. Fix Node Path for Sudo (Important for production later)
-# We get the exact path of the current node version safely
+# --- 3. Symlink Node (Updated to be safer) ---
+# We use 'nvm which current' to get the exact path instead of 'ls' which can break
 NODE_PATH=$(nvm which current)
 sudo ln -sf $NODE_PATH /usr/local/bin/node
 sudo ln -sf $(dirname $NODE_PATH)/npm /usr/local/bin/npm
 sudo ln -sf $(dirname $NODE_PATH)/yarn /usr/local/bin/yarn
 
-# 4. Install Frappe Bench
-# on Ubuntu 25.10, we MUST use --user (no sudo)
+# --- 4. Install Frappe Bench (Essential Fix) ---
+# 'sudo pip3' is blocked on Ubuntu 25.10. We use '--user' instead.
 pip3 install --user frappe-bench
 
-# Add local bin to PATH so 'bench' command works
+# --- 5. Fix 'bench command not found' (Essential Fix) ---
+export PATH=$HOME/.local/bin:$PATH
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
-source ~/.bashrc
 
-# 5. Initialize Bench
+# --- 6. Init bench ---
 cd ~
-# This creates the directory 'kb_bench'.
+# This creates the 'erp' folder
 bench init kb_bench --frappe-branch version-15
 
-# 6. Create New Site
+# --- 7. Create new site ---
 cd ~/kb_bench
-# Note: You will be prompted for your MariaDB root password here
-bench new-site pramodone 
+# You will be asked for the MariaDB root password here
+bench new-site pramodone
 
-# 7. Download Apps
+# --- 8. Install ERPNext ---
 bench get-app erpnext --branch version-15
+
+# --- 9. Install HRMS ---
 bench get-app hrms --branch version-15
 
-echo "Part 2 Complete! Site 'pramodone' is created."
+echo "Installation Complete!"
