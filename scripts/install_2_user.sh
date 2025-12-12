@@ -31,7 +31,7 @@ bench init kb_bench --frappe-branch version-15
 # 6. Create New Site
 cd ~/kb_bench
 # Note: You will be prompted for your MariaDB root password here
-bench new-site pramodone --admin-password "admin"
+bench new-site pramodone 
 
 # 7. Download Apps
 bench get-app erpnext --branch version-15
